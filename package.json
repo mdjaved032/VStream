@@ -1,0 +1,16 @@
+{
+  "name": "vstream",
+  "version": "1.0.0",
+  "description": "A software to stream video",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "javascript",
+    "backend",
+    "vstream"
+  ],
+  "author": "mdjaved032",
+  "license": "ISC"
+}
