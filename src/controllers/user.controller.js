@@ -3,13 +3,14 @@ import { ApiError } from "../utils/ApiError.js"
 import { User } from "../models/user.model.js"
 import { uploadOnCloudinary } from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { StatusCodes } from "http-status-codes";
 
 const generateAccessAndRefreshToken = async (userid) => {
   
   try {
     const user = await User.findOne(userid)
     const accessToken = user.generateAccessToken()
-    const refreshToken = user.generateAccessToken()
+    const refreshToken = user.generateRefreshToken()
 
     user.refreshToken = refreshToken
     await user.save({ validateBeforeSave: false })
@@ -125,6 +126,8 @@ const loginUser = asyncHandler( async (req, res) => {
   const isPasswordValid = await user.isPasswordCorrect(password)
 
   if (!isPasswordValid) {
+    console.log("isPasswordValid", isPasswordValid);
+    
     throw new ApiError(401, "Invalid user credentials")
   }
 
@@ -141,7 +144,7 @@ const loginUser = asyncHandler( async (req, res) => {
   }
 
   return res
-  .status(200)
+  .status(StatusCodes.OK)
   .cookie("accessToken", accessToken, options)
   .cookie("refreshToken", refreshToken, options)
   .json(
@@ -166,7 +169,7 @@ const logOutUser = asyncHandler( async (req, res) => {
     req.user._id,
     {
       $set: {
-        refreshToken: undefined
+        refreshToken: ""
       }
     }
     // {  // in this it doesn't matter
