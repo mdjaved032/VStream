@@ -10,7 +10,7 @@ import mongoose from "mongoose";
 
 const generateAccessAndRefreshToken = async (userid) => {
   try {
-    const user = await User.findOne(userid);
+    const user = await User.findById(userid);
     const accessToken = user.generateAccessToken();
     const refreshToken = user.generateRefreshToken();
 
@@ -82,7 +82,7 @@ const registerUser = asyncHandler(async (req, res) => {
   );
 
   if (!createdUser) {
-    ApiError(500, "Something went wrong while registering the user");
+    throw new ApiError(500, "Something went wrong while registering the user");
   }
 
   return res
@@ -158,8 +158,8 @@ const logOutUser = asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(
     req.user._id,
     {
-      $set: {
-        refreshToken: "",
+      $unset: {
+        refreshToken: 1, // removes field from the document
       },
     }
     // {  // in this it doesn't matter
@@ -459,7 +459,7 @@ const getUserHistory = asyncHandler(async (req, res) => {
   ]);
 
   return res.status(200).
-  json(new ApiResponse(200, user[0]?.watchHistory || {} , "Watch History fetched successfully"))
+  json(new ApiResponse(200, user[0]?.watchHistory || [] , "Watch History fetched successfully"))
 });
 
 export {
