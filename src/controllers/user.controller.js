@@ -47,7 +47,7 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   const userExists = await User.findOne({
-    $or: [{ fullName }, { email }],
+    $or: [{ username }, { email }],
   });
 
   if (userExists) {
@@ -229,6 +229,10 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
 const changeCurrentPassword = asyncHandler(async (req, res) => {
   const { oldPassword, newPassword } = req.body;
+
+  if (!oldPassword || !newPassword) {
+    throw new ApiError(400, "Old password and new password are required");
+  }
 
   const user = await User.findById(req.user?._id);
   const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
@@ -419,7 +423,7 @@ const getUserHistory = asyncHandler(async (req, res) => {
   const user = await User.aggregate([
     {
       $match: { 
-        _id: mongoose.Types.ObjectId(req.user._id) 
+        _id: new mongoose.Types.ObjectId(req.user._id) 
       },
     },
     {
